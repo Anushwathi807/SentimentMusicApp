@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment-Based Music Recommender</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        input { padding: 10px; width: 300px; }
+        button { padding: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Sentiment-Based Music Recommender</h1>
+    <form method="POST">
+        <input type="text" name="user_input" placeholder="Enter how you feel..." required>
+        <button type="submit">Recommend</button>
+    </form>
+
+    {% if sentiment %}
+        <h2>Predicted Sentiment: {{ sentiment }}</h2>
+        <h3>Recommended Song: {{ artist }} - {{ song }}</h3>
+        <a href="{{ link }}" target="_blank">Listen on Spotify</a>
+    {% endif %}
+</body>
+</html>
