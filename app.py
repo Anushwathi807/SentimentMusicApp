@@ -1,10 +1,9 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, render_template
 import joblib
 import re
 import string
 import nltk
 from nltk.corpus import stopwords
-import pandas as pd
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 
@@ -45,24 +44,55 @@ genre_mapping = {
     "Excited": "Hip-Hop"
 }
 
-# Get song based on sentiment
-def get_song_by_sentiment(sentiment):
-    genre = genre_mapping.get(sentiment, "Pop")
-    query = f"{genre} song"
-    results = sp.search(q=query, limit=1, type='track')
-    if results['tracks']['items']:
-        song = results['tracks']['items'][0]
-        return song['artists'][0]['name'], song['name'], song['external_urls']['spotify']
-    return "Unknown", "No Song Found", "#"
+def get_song_by_sentiment(sentiment, artist_filter=None):
+    # Expanded genre mapping with multiple genres per sentiment
+    genre_mapping = {
+        "Happy": ["pop", "dance", "disco"],
+        "Sad": ["blues", "soul", "r&b"],
+        "Angry": ["rock", "metal", "punk"],
+        "Relaxed": ["classical", "ambient", "jazz"],
+        "Excited": ["edm", "house", "techno"]
+    }
+    
+    # Get genres based on sentiment
+    genres = genre_mapping.get(sentiment, ["pop"])
+    songs = []
+    
+    # Build query - prioritize artist filter if specified
+    if artist_filter and artist_filter.strip():
+        query = f"artist:{artist_filter.strip()}"
+    else:
+        # Use genre filters if no artist specified
+        genre_query = " OR ".join([f"tag:{genre}" for genre in genres])
+        query = f"({genre_query}) year:2020-2024"
+    print(f"Searching Spotify with query: '{query}'")
+    
+    try:
+        results = sp.search(q=query, limit=10, type='track', market='US')
+        if results and results['tracks']['items']:
+            print(f"Found {len(results['tracks']['items'])} results for query: '{query}'")
+            for item in results['tracks']['items']:
+                artist = item['artists'][0]['name']
+                song_name = item['name']
+                link = item['external_urls']['spotify']
+                print(f"Found song: {song_name} by {artist}")
+                songs.append((artist, song_name, link))
+    except Exception as e:
+        print(f"Error fetching songs: {e}")
+    
+    return songs
 
 # Flask routes
 @app.route("/", methods=["GET", "POST"])
 def home():
     if request.method == "POST":
         user_input = request.form["user_input"]
+        artist_filter = request.form.get("artist", "").strip()
+        print(f"Artist filter: '{artist_filter}'")  # Debug logging
         sentiment = predict_sentiment(user_input)
-        artist, song, link = get_song_by_sentiment(sentiment)
-        return render_template("index.html", sentiment=sentiment, artist=artist, song=song, link=link, user_input=user_input)
+        songs = get_song_by_sentiment(sentiment, artist_filter)
+        print(f"Found {len(songs)} songs")  # Debug logging
+        return render_template("index.html", sentiment=sentiment, songs=songs, user_input=user_input)
     return render_template("index.html")
 
 if __name__ == "__main__":

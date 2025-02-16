@@ -1,26 +1,194 @@
-<!DOCTYPE html>
+h<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sentiment-Based Music Recommender</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-        input { padding: 10px; width: 300px; }
-        button { padding: 10px; cursor: pointer; }
-    </style>
+    <title>MoodTunes - Music Recommendation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Circular:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Sentiment-Based Music Recommender</h1>
-    <form method="POST">
-        <input type="text" name="user_input" placeholder="Enter how you feel..." required>
-        <button type="submit">Recommend</button>
-    </form>
+    <div class="spotify-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="logo">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg" alt="Spotify Logo">
+                <span>MoodTunes</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#" class="active">Home</a></li>
+            </ul>
+        </nav>
 
-    {% if sentiment %}
-        <h2>Predicted Sentiment: {{ sentiment }}</h2>
-        <h3>Recommended Song: {{ artist }} - {{ song }}</h3>
-        <a href="{{ link }}" target="_blank">Listen on Spotify</a>
-    {% endif %}
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="main-header">
+                <h1>Mood-Based Music Recommendation</h1>
+            </header>
+
+            <div class="content-grid">
+                <!-- Album Covers Section -->
+                <section class="album-covers">
+                    <div class="album-cover">
+                        <div class="cover-image" style="background-image: url('{{ url_for('static', filename='album.jpg') }}');"></div>
+                        <div class="album-info">
+                            <h2>MoodTunes Playlist 1</h2>
+                            <p>Your Personalized Music Journey</p>
+                        </div>
+                    </div>
+                    <div class="album-cover">
+                        <div class="cover-image" style="background-image: url('{{ url_for('static', filename='album1.jpg') }}');"></div>
+                        <div class="album-info">
+                            <h2>MoodTunes Playlist 2</h2>
+                            <p>Your Personalized Music Journey</p>
+                        </div>
+                    </div>
+                    <div class="album-cover">
+                        <div class="cover-image" style="background-image: url('{{ url_for('static', filename='album2.jpg') }}');"></div>
+                        <div class="album-info">
+                            <h2>MoodTunes Playlist 3</h2>
+                            <p>Your Personalized Music Journey</p>
+                        </div>
+                    </div>
+                    <div class="album-cover">
+                        <div class="cover-image" style="background-image: url('{{ url_for('static', filename='album3.jpg') }}');"></div>
+                        <div class="album-info">
+                            <h2>MoodTunes Playlist 4</h2>
+                            <p>Your Personalized Music Journey</p>
+                        </div>
+                    </div>
+                    <div class="album-cover">
+                        <div class="cover-image" style="background-image: url('{{ url_for('static', filename='album4.jpg') }}');"></div>
+                        <div class="album-info">
+                            <h2>MoodTunes Playlist 5</h2>
+                            <p>Your Personalized Music Journey</p>
+                        </div>
+                    </div>
+                    <div class="album-cover">
+                        <div class="cover-image" style="background-image: url('{{ url_for('static', filename='album5.jpg') }}');"></div>
+                        <div class="album-info">
+                            <h2>MoodTunes Playlist 6</h2>
+                            <p>Your Personalized Music Journey</p>
+                        </div>
+                    </div>
+                    <div class="album-cover">
+                        <div class="cover-image" style="background-image: url('{{ url_for('static', filename='album6.jpg') }}');"></div>
+                        <div class="album-info">
+                            <h2>MoodTunes Playlist 7</h2>
+                            <p>Your Personalized Music Journey</p>
+                        </div>
+                    </div>
+                    <div class="album-cover">
+                        <div class="cover-image" style="background-image: url('{{ url_for('static', filename='album7.jpg') }}');"></div>
+                        <div class="album-info">
+                            <h2>MoodTunes Playlist 8</h2>
+                            <p>Your Personalized Music Journey</p>
+                        </div>
+                    </div>
+                    <div class="album-cover">
+                        <div class="cover-image" style="background-image: url('{{ url_for('static', filename='album8.jpg') }}');"></div>
+                        <div class="album-info">
+                            <h2>MoodTunes Playlist 9</h2>
+                            <p>Your Personalized Music Journey</p>
+                        </div>
+                    </div>
+                </section>
+                
+            </div>
+
+            <!-- Mood Input and Recommendations Section -->
+            <section class="mood-recommendations">
+                <form method="POST">
+                    <div class="form-group">
+                        <label for="user_input">How are you feeling today?</label>
+                        <input type="text" id="user_input" name="user_input" placeholder="Enter your mood or a short sentence..." required>
+                        
+                        <div class="filter-group">
+                            <label for="artist-filter">Artist:</label>
+                            <input type="text" id="artist-filter" name="artist" placeholder="Enter artist name" value="{{ request.form.artist if request.form.artist else '' }}">
+                        </div>
+                        
+                        <button type="submit">Get Recommendations</button>
+                    </div>
+                </form>
+
+                {% if user_input %}
+                <div class="results-section" style="margin-top: 30px;">
+                    <div class="results-header">
+                        <h3>Your Mood: {{ sentiment }}</h3>
+                        <p>You said: "{{ user_input }}"</p>
+                    </div>
+
+                {% if songs %}
+                <div class="song-grid">
+                    {% for artist, song, link in songs %}
+                    <div class="song-card">
+                        <div class="card-content">
+                            <h4>{{ artist }}</h4>
+                            <p>{{ song }}</p>
+                            <a href="{{ link }}" class="spotify-btn" target="_blank">Play on Spotify</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="no-results">
+                    <p>No songs found. Try again later.</p>
+                </div>
+                {% endif %}
+                </div> <!-- Closing results-section -->
+            </section> <!-- Closing mood-recommendations -->
+            {% endif %}
+        </main>
+
+        <!-- Player Controls -->
+        <footer class="player-controls">
+            <div class="player-info">
+                <div class="song-info">
+                    <span class="song-title">MoodTunes Player</span>
+                    <span class="artist-name">Your Personal DJ</span>
+                </div>
+            </div>
+            <div class="player-buttons">
+                <button class="control-btn" id="prev-btn">⏮</button>
+                <button class="control-btn" id="play-btn">▶️</button>
+                <button class="control-btn" id="next-btn">⏭</button>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Advanced filter functionality
+        const filters = document.querySelectorAll('.advanced-filters input, .advanced-filters select');
+        let songCards = [];
+
+        // Initialize filters when results are loaded
+        function initializeFilters() {
+            songCards = document.querySelectorAll('.song-card');
+            filters.forEach(filter => {
+                filter.addEventListener('change', applyFilters);
+            });
+        }
+
+        function applyFilters() {
+            const artistFilter = document.getElementById('artist-filter').value.toLowerCase();
+
+            songCards.forEach(card => {
+                const artist = card.querySelector('h4').textContent.toLowerCase();
+                const artistMatch = artist.includes(artistFilter);
+
+                if (artistMatch) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Initialize filters when the page loads
+        if (document.querySelector('.song-card')) {
+            initializeFilters();
+        }
+    </script>
 </body>
 </html>
